@@ -4,7 +4,6 @@
     <title>Unspun</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -623,11 +622,13 @@
         <p style="margin-top:8px; font-size:12px; color:#3a4a5a;">Powered by <a href="https://hapawire.com" target="_blank">Hapawire</a></p>
     </footer>
 
-    <script>
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
         // ── Supabase ───────────────────────────────────────────────────────────
         const SUPABASE_URL = 'https://alxqtmqsjckragnsbwqw.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFseHF0bXFzamNrcmFnbnNid3F3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxMDU3MDMsImV4cCI6MjA5MTY4MTcwM30._SklOQMaFThiIWlhfhFa9MmDqqrxDSiEohJtEjFsR_w';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let currentUser = null;
         let currentCredits = 0;
@@ -931,6 +932,12 @@
             el.textContent = msg;
             el.className = 'status' + (type ? ' ' + type : '');
         }
+
+        // Expose functions needed by inline onclick handlers
+        window.signIn = signIn;
+        window.signOut = signOut;
+        window.calculate = calculate;
+        window.applyManualFee = applyManualFee;
 
         initAuth();
     </script>
