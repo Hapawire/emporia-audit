@@ -652,11 +652,11 @@
                 .single();
             currentCredits = profile?.audit_credits ?? 0;
             document.getElementById('nav-email').textContent = user.email;
-            document.getElementById('nav-credits').textContent = currentCredits + (currentCredits === 1 ? ' audit' : ' audits');
+            document.getElementById('nav-credits').textContent = currentCredits === -1 ? '∞ audits' : currentCredits + (currentCredits === 1 ? ' audit' : ' audits');
             document.getElementById('nav-signed-out').style.display = 'none';
             document.getElementById('nav-signed-in').style.display = 'flex';
             document.getElementById('auth-gate').style.display = 'none';
-            if (currentCredits > 0) {
+            if (currentCredits > 0 || currentCredits === -1) {
                 document.getElementById('tool-inner').style.display = 'block';
                 document.getElementById('no-credits-gate').style.display = 'none';
             } else {
@@ -701,9 +701,10 @@
 
         async function decrementCredit() {
             if (!currentUser) return;
+            await supabase.from('audits').insert({ user_id: currentUser.id });
+            if (currentCredits === -1) return; // unlimited — don't decrement
             currentCredits = Math.max(0, currentCredits - 1);
             await supabase.from('profiles').update({ audit_credits: currentCredits }).eq('id', currentUser.id);
-            await supabase.from('audits').insert({ user_id: currentUser.id });
             document.getElementById('nav-credits').textContent = currentCredits + (currentCredits === 1 ? ' audit' : ' audits');
         }
 
@@ -730,7 +731,7 @@
         async function handleFiles(files) {
             if (!files.length) return;
             if (!currentUser) { setStatus('Please sign in first.', 'error'); return; }
-            if (currentCredits <= 0) { setStatus('No audits remaining. Purchase more to continue.', 'error'); return; }
+            if (currentCredits === 0) { setStatus('No audits remaining. Purchase more to continue.', 'error'); return; }
             setStatus('', '');
             document.getElementById('loading').style.display = 'block';
             document.getElementById('report').style.display = 'none';
